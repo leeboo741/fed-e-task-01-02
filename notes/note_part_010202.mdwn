@@ -1,0 +1,616 @@
+# TypeScript
+
+```js
+    解决 JS 类型系统的 不足
+    大大提高代码的可靠程度
+```
+```js
+    学习目的: 了解 js 自有类型系统的问题, 并学习解决方案, ts 是其中一种解决方案
+```
+
+## 强类型 and 弱类型 | 静态类型 and 动态类型
+
+```js
+    // 强类型 与 弱类型 (类型安全)
+    // 静态类型 与 动态类型 (类型检查)
+
+    // 类型安全 ==> 
+    // 在语言层面限制函数的实参和形参类型相同 (强类型)
+    // 不限制实参类型 (弱类型)
+    // 强类型有更强的类型约束, 弱类型几乎没有约束
+    // 强类型语言中不允许任意的隐式类型转换
+
+    // 类型检查 ==>
+    // 静态类型语言, 一个变量声明的时候它的类型就是明确的, 声明过后, 它的类型就不允许再修改
+    // 动态类型语言, 在运行阶段才能够明确变量类型, 变量的类型可以随时改变, 动态类型语言中, 变量是没有类型的, 变量中的值是有类型的
+    
+```
+
+## js 自有类型系统的问题
+
+``` js
+    // 是一门 弱类型 且 动态类型 的 语言
+    // 任性, 随意, 多变
+    // 丢失类型系统的可靠性
+    // 历史原因
+    // 脚本语言 没有编译环节
+    
+    // 常见问题
+    // 1. 类型异常 要等到运行时才能发现
+    // 2. 类型不明确, 造成函数执行结果异常, 功能改变
+    // 3. 造成对象索引器使用异常
+```
+
+```js
+    // 强类型的优势
+
+    // 1. 错误更早暴露 编码编译阶段就暴露
+    // 2. 代码更智能, 编码更准确
+    // 3. 重构更牢靠
+    // 4. 减少不必要的类型判断
+```
+
+## flow静态类型检查方案
+
+```js
+    // Flow  JS的类型检查器
+
+    // 添加类型注解的方式, 来标记变量,参数的类型, flow 根据标记来进行检查
+    function sum( a: number, b: number) {
+        return a + b;
+    }
+    // 可以通过babel去除注解
+    // 可以自由选择是否添加注解
+```
+
+```js
+    // 使用
+    // 1. 安装 npm / yarn 
+    // 2. npm install flow-bin --only=dev 安装成项目依赖, 跟随项目管理
+    // 3. 在js 头部 通过注释方式使用flow标记 ==> //@flow 后 flow才会检查该文件
+    // 4. 关闭编辑器自带的类型检查
+    // 5. 执行 flow init 命令创建flow.config 文件
+
+    1. npm install --save-dev flow-bin // 安装
+    2. 添加"flow"在package.json文件下的scripts字段里
+    {
+        "name": "my-flow-project",
+        "version": "1.0.0",
+        "devDependencies": {
+            "flow-bin": "^0.98.0"
+        },
+        "scripts": {
+            "flow": "flow"
+        }
+    }
+    3. npm run flow init // 初始化
+    4. npm run flow // 运行
+    5. npm run flow status // 查看运行状态
+    6. npm run flow stop // 关闭
+```
+
+```js
+    // 编译, 通过编译移除 类型注解
+    // 类型注解无法正常运行, 需要在编译时移除
+    // flow-remove-types src -d dist // src 文件夹中的文件 移除 注解后 生成新文件放入dist文件中, 打包时直接使用dist目录中文件
+    1. npm install --save-dev flow-remove-types
+    2. npm run flow-remove-types src/ -d dist/
+    // 将开发和编译区分开来, 开发完成, 移除注解, 编译
+```
+
+```js
+    // 通过 babel 控制
+    // 1. 安装 babel
+    // npm install @babel/core @babel/cli @babel/preset-flow
+    // 2. 添加 babel 配置文件
+    // 创建 .babelrc 文件
+    // {
+    //      "presets" : [@babel/preset-flow]        
+    //  }
+    // 3. 执行 npm babel src -d dist
+```
+
+```js
+    // 通过开发工具插件
+    // 安装 flow language support
+```
+
+```js
+    // flow 类型推断
+    // 推荐使用类型注解, 不依赖类型推断
+```
+
+```js
+    // flow 类型注解
+    // 建议尽量使用类型注解 方便理解
+```
+
+```js
+    // 原始类型
+    // flow 支持哪些类型 以及高级用法
+    // String 
+    // Number (NuN, Infinity)
+    // boolean
+    // null = null
+    // void = undefined
+    // symbol = Symbol
+```
+
+```js
+    // 数组类型
+    const arr: Array<Number> = [1,2,3,4,5,"6"];
+    const arr1: number[] = [1,2,3,4];
+    const foo: [string, number] = ['foo', 100]; // 元组 返回多个返回值类型
+```
+
+```js
+    // 对象类型
+    const obj: {foo: string, bar: number} = {foo: 'string', bar: 100};
+    const obj: {foo?: string, bar: number} = {bar: 100};
+    const obj: {[string]: string} = {}
+```
+
+```js
+    // 函数类型
+    // 参数类型和返回值类型
+    function method(value: number): number{
+        return 1;
+    }
+    function method(callback: (string, number)=>void) {
+        // 回调函数两个值 string number
+        // 回调函数没有返回值 void
+    }
+```
+
+```js
+    // 特殊类型
+    // 字面量类型
+    const a: "foo" = "foo"; // 固定存放 "foo"
+    // 可选类型
+    const type: "success"| "warning" | "danger" = "success"; // 只能存放success, warning, danger
+    const b: string|number = "string" // 100, 都可以
+    type StringOrNumber = string|number;
+    const c: StringOrNumber = "string" // 类型别名
+     // maybe类型
+    const gender: ?number = undefined; // mybe类型
+    const gender: number|null|void = undefined
+    // mixed | any 类型 
+    // 任意类型 mixed 强类型 any 弱类型
+    // 尽量不要使用 any 类型
+    function passMixed(value: mixed) {
+
+    }
+```
+
+```js
+    // 类型小结
+    // https:// flow.org/en/docs/types/ 官网手册
+    // https:// www.saltycrane.com/cheat-sheets/flow-type/latest/ 类型手册
+```
+
+```js
+    // 运行环境 API 内置对象
+    const element: HTMLElement | null = document.getElementById("app");
+    // 对应环境api
+    // https://github.com/facebook/flow/blob/master/lib/core.js // js
+    // https://github.com/facebook/flow/blob/master/lib/dom.js // dom
+    // https://github.com/facebook/flow/blob/master/lib/bom.js // bom 
+    // https://github.com/facebook/flow/blob/master/lib/cssom.js // cssom
+    // https://github.com/facebook/flow/blob/master/lib/node.js // node
+```
+
+## ts 语言规范和基本应用
+
+```js
+    TS  是 JS 的超集(superset)(扩展集)
+    任何一种 js 运行环境都支持
+    功能更强大, 生态更健全完善
+```
+
+```js
+    缺点: 
+    1. 语言本身多了很多概念 学习成本 (渐进式的, 可以当做js使用)
+    2. 项目初期增加成本, 小型项目推荐js
+    3. 长期维护, 大型项目 推荐使用TS
+```
+
+
+### 快速上手
+
+```js
+    // 类型注解使用方式 与 flow 基本相似
+    // tsc 先编译成 js , 再执行 js文件
+    // 
+```
+
+### 配置文件
+
+```js
+    // yarn tsc --init 执行 ts 初始化, 生成tsconfig.json文件
+    // 常用 配置文件 属性 说明
+    // target: 设置编译后的 js文件采用的 ES 标准
+    // module: 输出的代码采用什么方式进行模块化, 
+    // outDir: 设置编译结果输出文件夹目录
+    // rootDir: 设置原代码ts代码的目录
+    // sourceMap: 开启原代码隐射模式 调试时可以使用sourcemap文件调试源代码
+    // strict: 严格类型检查模式
+    // ===================
+    // yarn tsc 编译整个项目
+```
+
+### 原始类型
+
+```js
+    const a: string = 'foo'; // null
+    const b: number = 12// NuN Infinity null
+    const c: boolean = true // false null
+    const d: void = null // undefined
+    const e: null = null
+    const f: undefined = undefined;
+    const h: symbol = Symbol(); // target 在 es2015以下 将会报错
+```
+
+### 标准库声明
+
+```js
+    // 在 config 文件中设置 target 在 2015一下 且必须在2015一下 但是又必须使用2015中的库和对象, 可以在 config 文件的 lib 中声明 2015的 标准库
+    // 设置lib 会对标准库进行覆盖, 如果需要使用console等方法 还需要引入dom标准库
+    // lib: ["es2015","dom"]
+    // 标准库就是内置对象所对应的声明
+```
+
+### 中文错误消息
+
+```js
+    // yarn tsc --local zh-CN
+    // 建议使用英文错误消息
+```
+
+### 作用域问题
+
+```js
+    // 全局作用域情况下 命名重复的问题
+
+    // 第一种方式 立即执行函数的方式, 
+    (function(){
+        const a: number = 123;
+    })();
+
+    // 第二种方式 使用export{} 方式, 将文件作为导出模块
+    const a: boolean = true;
+
+    export{}
+```
+
+### Object 类型
+
+```js
+    // ts 中 泛指非原始值
+    const foo: object = function(){} // [] // {}
+    const obj: {foo: number, bar: string} = {foo: 123, bar: "string"}; // 赋值必须一致, 不能多也不能少
+    // 更专业的 Object 实现 应该使用接口的方式
+```
+
+### Array 类型
+
+```js
+    // 数组类型
+    export{}
+
+    const arr1: Array<number> = [1,2,3];
+    const arr2: number[] = [1,2,3];
+```
+
+### 元组类型 Tuple
+
+```js
+    // 元组类型
+    // 明确元素数量和每一个元素类型的数组
+    export{}
+
+    const tuple: [number, string] = [18, "string"];
+    // const age: number = tuple[0];
+    // const name: string = tuple[1];
+
+    const [age, name] = tuple
+
+    console.log(age, name);
+```
+
+### 枚举类型 Enum
+
+```js
+    enum PostStatus{
+        Draft = 0,
+        Unpublish = 1,
+        Publish = 2,
+    } 
+    const post = {
+        title: "hello",
+        content: "hello , you mather fucker",
+        status: PostStatus.Draft,
+    }
+    // 枚举值可以是数字  也可以是 字符串
+    // 枚举类型可以入侵到运行时的代码
+    // 会影响编译后的结果
+    // 会编译成一个双向的键值对对象
+    // 建议用 const 修饰枚举 
+```
+
+### 函数类型  Function
+
+```js
+    // 函数类型
+    export{}
+    // 两种声明方式
+    // 1, 函数声明
+    function func1(a:number,b: number): string {
+        return "fun1"
+    }
+    func1(100, 200);
+    // func1(100);
+    // func1(100, "299");
+    // 参数个数必须和形参相同
+
+    // 设置成可选参, 可以不传
+    function func2(a:number,b?: number): string {
+        return "fun2"
+    }
+    func2(100, 200);
+    func2(100);
+    // func2(100, "299");
+
+    // 设置成默认值, 可以不传
+    function func3(a:number,b: number = 100): string {
+        return "fun3"
+    }
+    func3(100, 200);
+    func3(100);
+    // func2(100, "299");
+
+    // 2. 函数表达式
+    const func4 = function(a: number, b: number): string {
+        return " func4";
+    }
+
+    const func5 : (a:number, b: number) => string = function (a: number, b:number): string {
+        return "func5";
+    }
+```
+
+### 任意类型 Any
+
+```js
+    // 任意类型
+    export{}
+
+    function stringify(value: any) {
+        return JSON.stringify(value)
+    }
+
+    // ts 不会对any类型进行类型检查
+    let foo: any = "string";
+    foo = 100;
+    foo = true;
+    foo.bar();
+```
+
+### 隐式类型推断 type inference
+
+```js
+    // 如果没有明确使用类型注解标记变量类型, ts 会根据变量使用情况去推断变量类型
+    // 建议为每一个对象添加明确的类型
+```
+
+### 类型断言 type assertions
+
+```js
+    // 假定num来源一个明确返回数字的接口
+    const nums = [100,290,304,498];
+
+    const res = nums.find(i => i > 0); // res = number | undefined
+    // const square = res * res; // 不能把res 当做 number 使用
+    // 使用断言, 断言 res 是 number 类型
+    const num1 = res as number;
+    // jsx 下不能使用 推荐使用第一种方式
+    const num2 = <number>res;
+
+    // 类型断言不是类型转换
+```
+
+### 接口 interfaces
+
+```js
+    // 规范, 概念, 约定对象中有什么成员和方法
+    // 接口
+
+    export{}
+
+    interface PostInterface{
+        title: string;
+        content: string;
+    }
+
+    function printPost(post: PostInterface) {
+        console.log(post.title);
+        console.log(post.content);
+    }
+
+    printPost({
+        title: 'hello',
+        content: 'hello you mother fucker'
+    })
+
+    // ts 中的 接口代码 只是为了有结构的数据做类型约束的, 不会再编译后的js文件中有体现
+    // 实际运行中没有任何意义
+```
+
+```js
+    // 可选成员, 只读成员, 动态成员
+
+    subtitle?: string; // 可选成员
+    readonly summary?: string; // 只读成员
+    // 动态成员
+    interface Cache{
+        [key: string]: string;
+    }
+
+    const cache: Cache = {};
+    cache.foo = 'value1';
+    cache.bar = 'value2';
+```
+
+### 类 class
+
+```js
+    // 作用: 
+    // 描述一类具体事物的抽象特征
+    // 描述一类具体对象的抽象成员
+    // es6以前, 函数 + 原型 模拟实现类
+    // es6以后, 有了专门的 class 语法
+    // ts 中 增强了 class 的相关语法
+
+    class Person {
+        // 要么声明时赋值, 要么构造函数中赋值
+        name: string;
+        age: number;
+        constructor (name: string, age: number){
+            this.name = name;
+            this.age = age;
+
+        }
+        sayHi(msg:string) {
+            console.log(`i am ${this.name}`);
+        }
+    }
+```
+
+```js
+    // 访问修饰符
+    // 访问级别
+    private, public, protected
+    // 静态
+    static
+```
+
+```js
+    // 类 只读属性
+    // 如果已经有 访问修饰符 readonly 跟在访问修饰符后面
+    // 只读属性 只能在 声明和构造中赋值, 二选其一
+```
+
+```js
+    // 类 与 接口
+    export{}
+
+    // 接口尽量细化 一个接口实现一个能力
+    interface Eat{
+        eat(food: string): void;
+    }
+
+    interface Run{
+        run(distance: number) : void;
+    }
+
+    interface Thing {
+        thing(mind: string): void;
+    }
+
+    class Alin implements Thing{
+        thing(mind: string): void {
+            console.log(`thing ${mind}`);
+        }
+    }
+
+    class Person implements Eat, Run, Thing{
+        thing(mind: string): void {
+            console.log(`thing ${mind}`);
+        }
+        eat(food: string) : void{
+            console.log(`eat ${food}`);
+        }
+        run(distance: number) : void {
+            console.log(`run ${distance}`);
+        }
+        speak(word: string) : void {
+            console.log(`speak ${word}`);
+        }
+    }
+
+    class Animal implements  Eat, Run {
+        eat(food: string) : void{
+            console.log(`eat ${food}`);
+        }
+        run(distance: number) : void {
+            console.log(`run ${distance}`);
+        }
+    }
+```
+
+```js
+    // 抽象类
+    // 约束子类中有某种成员
+    // 与接口区别 : 抽象类可以有默认实现
+    export{}
+    abstract class Animal{
+        eat(food: string) : void {
+            console.log(`eat ${food}`);
+        }
+        abstract run (distance: number) : void;
+    }
+
+    class Dog extends Animal {
+        run(distance: number): void {
+            console.log(`run ${distance}`);
+        }
+    }
+```
+
+### 泛型 Generics
+
+```js
+    // 定义接口和函数或类的是偶 没有指定具体类型, 在使用的时候再去指定具体类型的 这种特征
+    // 目的 极大程度的复用代码
+    export{}
+
+    function createNumberArray(length: number, value: number) : number[] {
+        const arr = Array<number>(length).fill(value);
+        return arr;
+    }
+
+    function createStringArray(length: number, value: string) : string[] {
+        const arr = Array<string>(length).fill(value);
+        return arr;
+    }
+
+    // 泛型就是把定义时不能明确的类型作为参数, 在使用的时候明确
+    function createArray<T>(length: number, value:T ) : T[] {
+        const arr = Array<T>(length).fill(value);
+        return arr;
+    }
+
+    const res = createNumberArray(3, 100);
+    // res => [100, 100, 100];
+
+    const res2 = createArray<String>(3, 'foo');
+    // res2 => ['foo','foo','foo'];
+```
+
+```js
+    // 泛型类型声明
+    // 用于兼容普通的js模块, 给没有类型声明的函数添加别名, 形成声明
+    // 当前大部分常用的npm模块都提供了 声明, 安装就可以了
+    // 例如lodash 安装 @types/lodash 声明模块
+
+    // 有些模块已经内部集成声明文件 例如 query-string 模块(解析url中的query string 字符串)
+    import {camelCase} from 'lodash'
+
+    // 声明 declare
+    // declare function camelCase(input: string) : string;
+
+    const res = camelCase(`hello typed`);
+
+    import qs from 'query-string'
+    const res2 = qs.parse('?key=value&key2=value2');
+    console.log(res2);
+```
